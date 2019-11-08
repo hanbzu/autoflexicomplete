@@ -5,6 +5,7 @@ import Popper from "@material-ui/core/Popper";
 import Paper from "@material-ui/core/Paper";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
+import useAutocomplete from "./useAutocomplete";
 
 import "./styles.css";
 
@@ -16,59 +17,34 @@ const TEST_DATA = [
     group: "time"
   },
   { id: "time-today", label: "Today", group: "time" },
-  { id: "sunny", label: "☀️ Sunny", group: "weather" },
-  { id: "cloudy", label: "☁️ Cloudy", alt: "covered", group: "weather" }
+  { id: "weather-sunny", label: "☀️ Sunny", group: "weather" },
+  { id: "weather-cloudy", label: "☁️ Cloudy", alt: "covered", group: "weather" }
 ];
-
-function useAutocompleteList({
-  list, // The original list, without filtering
-  query, // what to search
-  onSelect // Called if the user hits ↵ Enter
-}) {
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
-  const filteredList = list;
-
-  function onKeyDown({ key }) {
-    switch (key) {
-      case "Enter":
-        return onSelect(filteredList[selectedIndex]);
-        break;
-      case "ArrowDown":
-        if (selectedIndex < filteredList.length - 1)
-          setSelectedIndex(selectedIndex + 1);
-        break;
-      case "ArrowUp":
-        if (selectedIndex > 0) setSelectedIndex(selectedIndex - 1);
-        break;
-      default:
-    }
-  }
-
-  console.log("selectedIndex", selectedIndex);
-
-  return {
-    bind: { onKeyDown },
-    filteredList,
-    selectedItem: filteredList[selectedIndex] || null
-  };
-}
 
 function App() {
   const [inputEl, setInputEl] = React.useState(null);
   const [text, setText] = React.useState("");
-  const { bind, filteredList, selectedItem } = useAutocompleteList({
+
+  function onChosen(what) {
+    console.log("onChosen", what);
+    setText("");
+  }
+
+  const { bind, filteredList, selectedItem } = useAutocomplete({
     list: TEST_DATA,
     query: text,
-    onSelect: what => console.log("onSelect", what)
+    keys: ["label", "alt"],
+    onSelect: ({ id }) => onChosen(id)
   });
 
-  console.log("selectedItem", selectedItem);
+  // console.log("selectedItem", selectedItem);
 
   return (
     <div>
-      <h1>🍥 auto·flexi·complete!</h1>
+      <h1>auto·flexi·complete</h1>
 
       <TextField
+        value={text}
         variant="outlined"
         onFocus={e => setInputEl(e.currentTarget)}
         onBlur={() => setInputEl(null)}
@@ -84,8 +60,13 @@ function App() {
       >
         <Paper>
           <List>
-            {TEST_DATA.map(({ id, label }) => (
-              <ListItem button key={id} selected={id === selectedItem.id}>
+            {filteredList.map(({ id, label }) => (
+              <ListItem
+                button
+                key={id}
+                selected={selectedItem && id === selectedItem.id}
+                onClick={() => onChosen(id)}
+              >
                 {label}
               </ListItem>
             ))}
