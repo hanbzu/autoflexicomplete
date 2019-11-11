@@ -13,16 +13,21 @@ export default function useAutocomplete({
   // I would love to somehow memoize this computation but
   // as it'd involve deep comparison of list and keys
   // I cannot in a straightforward way
-  const fuse = new Fuse(list, { ...({ keys } || {}) });
+  const opts = { shouldSort: false, includeScore: true };
+  if (keys) opts.keys = keys;
+  const fuse = new Fuse(list, opts);
   const searchResults = fuse.search(query);
+  const scores = searchResults.map(d => d.score);
+  const indexWithBestScore = scores.indexOf(Math.min(...scores));
 
   React.useEffect(() => {
     if (searchResults.length === 0) setSelectedIndex(null);
-    else setSelectedIndex(0);
-  }, [searchResults.length]);
+    else setSelectedIndex(indexWithBestScore);
+  }, [searchResults.length, indexWithBestScore]);
 
   // If there's no search results, show full list
-  const filteredList = searchResults.length > 0 ? searchResults : list;
+  const filteredList =
+    searchResults.length > 0 ? searchResults.map(d => d.item) : list;
   const selectedItem = filteredList[selectedIndex] || null;
 
   function onKeyDown({ key }) {

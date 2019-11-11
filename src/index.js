@@ -35,7 +35,8 @@ const TEST_DATA = [
     label: "⚡️ Stormy",
     alt: "lightning",
     group: "weather"
-  }
+  },
+  { id: "weather-munny", label: "Munny", group: "wat" }
 ];
 
 function App() {
