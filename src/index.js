@@ -17,8 +17,25 @@ const TEST_DATA = [
     group: "time"
   },
   { id: "time-today", label: "Today", group: "time" },
+  {
+    id: "time-a-long-time-ago",
+    label: "✨ A long time ago",
+    alt: "in a galaxy far, far away",
+    group: "time"
+  },
   { id: "weather-sunny", label: "☀️ Sunny", group: "weather" },
-  { id: "weather-cloudy", label: "☁️ Cloudy", alt: "covered", group: "weather" }
+  {
+    id: "weather-cloudy",
+    label: "☁️ Cloudy",
+    alt: "covered",
+    group: "weather"
+  },
+  {
+    id: "weather-stormy",
+    label: "⚡️ Stormy",
+    alt: "lightning",
+    group: "weather"
+  }
 ];
 
 function App() {
@@ -26,8 +43,10 @@ function App() {
   const [text, setText] = React.useState("");
 
   function onChosen(what) {
+    // For the purposes of this demo, we blur and clear text at every choice
     console.log("onChosen", what);
     setText("");
+    document.getElementsByTagName("input")[0].blur();
   }
 
   const { bind, filteredList, selectedItem } = useAutocomplete({
@@ -37,17 +56,14 @@ function App() {
     onSelect: ({ id }) => onChosen(id)
   });
 
-  // console.log("selectedItem", selectedItem);
-
   return (
     <div>
-      <h1>auto·flexi·complete</h1>
-
       <TextField
+        placeholder="Choose"
         value={text}
         variant="outlined"
         onFocus={e => setInputEl(e.currentTarget)}
-        onBlur={() => setInputEl(null)}
+        onBlur={() => setTimeout(() => setInputEl(null), 300)} // after 100ms to be able to click on the list without it suddenly disappearing
         onChange={e => setText(e.target.value)}
         {...bind}
       />

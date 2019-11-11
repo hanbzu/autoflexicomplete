@@ -7,25 +7,23 @@ export default function useAutocomplete({
   keys, // OPTIONAL. If present, only search the provided keys
   onSelect // Called if the user hits ↵ Enter
 }) {
+  // This is to keep the state when the user clicks up/down arrows
   const [selectedIndex, setSelectedIndex] = React.useState(null);
-  const [searchResults, setSearchResults] = React.useState(list);
-  const fuseOptions = (keys && { keys }) || {};
-  const fuse = new Fuse(list, fuseOptions);
+
+  // I would love to somehow memoize this computation but
+  // as it'd involve deep comparison of list and keys
+  // I cannot in a straightforward way
+  const fuse = new Fuse(list, { ...({ keys } || {}) });
+  const searchResults = fuse.search(query);
 
   React.useEffect(() => {
-    const search = fuse.search(query);
-    setSearchResults(search);
+    if (searchResults.length === 0) setSelectedIndex(null);
+    else setSelectedIndex(0);
+  }, [searchResults.length]);
 
-    if (search.length === 0) {
-      setSelectedIndex(null);
-    } else {
-      setSelectedIndex(0);
-    }
-  }, [query]);
-
+  // If there's no search results, show full list
   const filteredList = searchResults.length > 0 ? searchResults : list;
-  const selectedItem =
-    (selectedIndex !== null && filteredList[selectedIndex]) || null;
+  const selectedItem = filteredList[selectedIndex] || null;
 
   function onKeyDown({ key }) {
     switch (key) {
@@ -37,6 +35,7 @@ export default function useAutocomplete({
         break;
       case "ArrowDown":
         if (selectedIndex === null) setSelectedIndex(0);
+        // Complete list, start with 0
         else if (selectedIndex < filteredList.length - 1)
           setSelectedIndex(selectedIndex + 1);
         break;
@@ -46,8 +45,6 @@ export default function useAutocomplete({
       default:
     }
   }
-
-  console.log("selected", selectedIndex, selectedItem);
 
   return {
     bind: { onKeyDown },
