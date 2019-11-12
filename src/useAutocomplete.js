@@ -4,7 +4,7 @@ import Fuse from "fuse.js";
 export default function useAutocomplete({
   list, // The original list, without filtering
   query, // what to search
-  keys, // OPTIONAL. If present, only search the provided keys
+  keys, // Search the provided keys
   onSelect // Called if the user hits ↵ Enter
 }) {
   // This is to keep the state when the user clicks up/down arrows
@@ -13,9 +13,7 @@ export default function useAutocomplete({
   // I would love to somehow memoize this computation but
   // as it'd involve deep comparison of list and keys
   // I cannot in a straightforward way
-  const opts = { shouldSort: false, includeScore: true };
-  if (keys) opts.keys = keys;
-  const fuse = new Fuse(list, opts);
+  const fuse = new Fuse(list, { shouldSort: false, includeScore: true, keys });
   const searchResults = fuse.search(query);
   const scores = searchResults.map(d => d.score);
   const indexWithBestScore = scores.indexOf(Math.min(...scores));
