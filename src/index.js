@@ -2,9 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import TextField from "@material-ui/core/TextField";
 import Popper from "@material-ui/core/Popper";
-import Paper from "@material-ui/core/Paper";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
+import DropdownMenu from "./DropdownMenu";
 import useAutocomplete from "./useAutocomplete";
 
 import "./styles.css";
@@ -75,20 +73,11 @@ function App() {
         placement="bottom-start"
         style={{ marginTop: 10 }}
       >
-        <Paper>
-          <List>
-            {filteredList.map(({ id, label }) => (
-              <ListItem
-                button
-                key={id}
-                selected={selectedItem && id === selectedItem.id}
-                onClick={() => onChosen(id)}
-              >
-                {label}
-              </ListItem>
-            ))}
-          </List>
-        </Paper>
+        <DropdownMenu
+          list={filteredList}
+          selectedItem={selectedItem}
+          onChosen={onChosen}
+        />
       </Popper>
     </div>
   );
